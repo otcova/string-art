@@ -2,6 +2,7 @@
 
 use std::f32::consts::PI;
 use std::mem::swap;
+use std::path::Path;
 use std::thread;
 use std::time::Duration;
 
@@ -160,24 +161,21 @@ fn node_pos(node_index: u16) -> (f32, f32) {
 }
 
 fn load_image(path: &str) -> GrayImage {
+    let path = Path::new("assets").join(path);
     let image = image::open(path).unwrap().grayscale().resize_to_fill(
         DIAMETER,
         DIAMETER,
         image::imageops::FilterType::Triangle,
     );
-    // image.invert();
+
     let mut image = image.into_luma8();
+
     image = contrast::stretch_contrast(
         &image,
         DARKEN,
         DARKEN + 1 + ((254. - DARKEN as f32) * (1. - CONTRAST)) as u8,
     );
-    // image = imageproc::edges::canny(&image, 0.1, 90.);
     for pixel in image.pixels_mut() {
-        // pixel.0[0] = u8::saturating_sub(255, u8::saturating_mul(255 - pixel.0[0], 2));
-        // pixel.0[0] = 255 - pixel.0[0];
-
-        // pixel.0[0] /= 2;
         pixel.0[0] = u8::saturating_sub(pixel.0[0], DARKEN);
     }
     image
